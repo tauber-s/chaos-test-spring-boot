@@ -1,0 +1,337 @@
+{
+  "chaoslib-version": "1.44.0",
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.29",
+  "node": "LAPTOP-6TGG9AIJ",
+  "experiment": {
+    "version": "1.0.0",
+    "title": "Get Employees when database is down",
+    "description": "N/A",
+    "tags": [],
+    "steady-state-hypothesis": {
+      "title": "Employee data is available",
+      "probes": [
+        {
+          "type": "probe",
+          "name": "we-can-retrieve-employee-data",
+          "tolerance": 200,
+          "provider": {
+            "type": "http",
+            "timeout": 5,
+            "url": "http://localhost:8080/employees/"
+          }
+        }
+      ]
+    },
+    "method": [
+      {
+        "name": "enable_chaosmonkey",
+        "provider": {
+          "arguments": {
+            "base_url": "http://localhost:8080/actuator"
+          },
+          "func": "enable_chaosmonkey",
+          "module": "chaosspring.actions",
+          "type": "python"
+        },
+        "type": "action"
+      },
+      {
+        "name": "configure_assaults",
+        "provider": {
+          "arguments": {
+            "base_url": "http://localhost:8080/actuator",
+            "assaults_configuration": {
+              "level": 1,
+              "latencyActive": false,
+              "exceptionsActive": true,
+              "exception": {
+                "type": "java.net.ConnectException",
+                "arguments": [
+                  {
+                    "className": "java.lang.String",
+                    "value": "Connection timed out"
+                  }
+                ]
+              }
+            }
+          },
+          "func": "change_assaults_configuration",
+          "module": "chaosspring.actions",
+          "type": "python"
+        },
+        "type": "action"
+      },
+      {
+        "name": "configure_controller_watcher",
+        "tolerance": 200,
+        "provider": {
+          "type": "http",
+          "url": "http://localhost:8080/actuator/chaosmonkey/watchers",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "arguments": {
+            "controller": true,
+            "restController": false,
+            "service": false,
+            "repository": false,
+            "component": false
+          }
+        },
+        "type": "action"
+      }
+    ],
+    "rollbacks": [
+      {
+        "name": "disable_chaosmonkey",
+        "provider": {
+          "arguments": {
+            "base_url": "http://localhost:8080/actuator"
+          },
+          "func": "disable_chaosmonkey",
+          "module": "chaosspring.actions",
+          "type": "python"
+        },
+        "type": "action"
+      }
+    ],
+    "dry": null
+  },
+  "start": "2025-08-20T13:44:41.386589+00:00",
+  "status": "completed",
+  "deviated": false,
+  "steady_states": {
+    "before": {
+      "steady_state_met": true,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "we-can-retrieve-employee-data",
+            "tolerance": 200,
+            "provider": {
+              "type": "http",
+              "timeout": 5,
+              "url": "http://localhost:8080/employees/"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Content-Type": "application/json",
+              "Transfer-Encoding": "chunked",
+              "Date": "Wed, 20 Aug 2025 13:44:41 GMT",
+              "Keep-Alive": "timeout=60",
+              "Connection": "keep-alive"
+            },
+            "body": {
+              "employeeList": [
+                {
+                  "id": 1,
+                  "firstName": "Prem",
+                  "lastName": "Tiwari",
+                  "email": "prem@gmail.com"
+                },
+                {
+                  "id": 2,
+                  "firstName": "Vikash",
+                  "lastName": "Kumar",
+                  "email": "vikash@gmail.com"
+                },
+                {
+                  "id": 3,
+                  "firstName": "Ritesh",
+                  "lastName": "Ojha",
+                  "email": "ritesh@gmail.com"
+                }
+              ]
+            }
+          },
+          "start": "2025-08-20T13:44:41.387558+00:00",
+          "status": "succeeded",
+          "end": "2025-08-20T13:44:41.394218+00:00",
+          "duration": 0.00666,
+          "tolerance_met": true
+        }
+      ]
+    },
+    "after": {
+      "steady_state_met": true,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "we-can-retrieve-employee-data",
+            "tolerance": 200,
+            "provider": {
+              "type": "http",
+              "timeout": 5,
+              "url": "http://localhost:8080/employees/"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Content-Type": "application/json",
+              "Transfer-Encoding": "chunked",
+              "Date": "Wed, 20 Aug 2025 13:44:42 GMT",
+              "Keep-Alive": "timeout=60",
+              "Connection": "keep-alive"
+            },
+            "body": {
+              "employeeList": [
+                {
+                  "id": 1,
+                  "firstName": "Prem",
+                  "lastName": "Tiwari",
+                  "email": "prem@gmail.com"
+                },
+                {
+                  "id": 2,
+                  "firstName": "Vikash",
+                  "lastName": "Kumar",
+                  "email": "vikash@gmail.com"
+                },
+                {
+                  "id": 3,
+                  "firstName": "Ritesh",
+                  "lastName": "Ojha",
+                  "email": "ritesh@gmail.com"
+                }
+              ]
+            }
+          },
+          "start": "2025-08-20T13:44:42.480670+00:00",
+          "status": "succeeded",
+          "end": "2025-08-20T13:44:42.488186+00:00",
+          "duration": 0.007516,
+          "tolerance_met": true
+        }
+      ]
+    },
+    "during": []
+  },
+  "run": [
+    {
+      "activity": {
+        "name": "enable_chaosmonkey",
+        "provider": {
+          "arguments": {
+            "base_url": "http://localhost:8080/actuator"
+          },
+          "func": "enable_chaosmonkey",
+          "module": "chaosspring.actions",
+          "type": "python"
+        },
+        "type": "action"
+      },
+      "output": "{\"enabledAt\":\"2025-08-20T10:44:41.399-03:00\",\"enabled\":true}",
+      "start": "2025-08-20T13:44:41.395057+00:00",
+      "status": "succeeded",
+      "end": "2025-08-20T13:44:41.401396+00:00",
+      "duration": 0.006339
+    },
+    {
+      "activity": {
+        "name": "configure_assaults",
+        "provider": {
+          "arguments": {
+            "base_url": "http://localhost:8080/actuator",
+            "assaults_configuration": {
+              "level": 1,
+              "latencyActive": false,
+              "exceptionsActive": true,
+              "exception": {
+                "type": "java.net.ConnectException",
+                "arguments": [
+                  {
+                    "className": "java.lang.String",
+                    "value": "Connection timed out"
+                  }
+                ]
+              }
+            }
+          },
+          "func": "change_assaults_configuration",
+          "module": "chaosspring.actions",
+          "type": "python"
+        },
+        "type": "action"
+      },
+      "output": null,
+      "start": "2025-08-20T13:44:41.401700+00:00",
+      "status": "failed",
+      "exception": [
+        "Traceback (most recent call last):\n",
+        "  File \"/home/san/.venv/lib/python3.8/site-packages/chaoslib/provider/python.py\", line 56, in run_python_activity\n    return func(**arguments)\n",
+        "  File \"/home/san/.venv/lib/python3.8/site-packages/chaosspring/actions.py\", line 96, in change_assaults_configuration\n    raise FailedActivity(\n",
+        "chaoslib.exceptions.ActivityFailed: Change ChaosMonkey Assaults Configuration failed: {\"timestamp\":\"2025-08-20T13:44:42.467+00:00\",\"status\":500,\"error\":\"Internal Server Error\",\"path\":\"/actuator/chaosmonkey/assaults\"}\n",
+        "\nDuring handling of the above exception, another exception occurred:\n\n",
+        "chaoslib.exceptions.ActivityFailed: chaoslib.exceptions.ActivityFailed: Change ChaosMonkey Assaults Configuration failed: {\"timestamp\":\"2025-08-20T13:44:42.467+00:00\",\"status\":500,\"error\":\"Internal Server Error\",\"path\":\"/actuator/chaosmonkey/assaults\"}\n"
+      ],
+      "end": "2025-08-20T13:44:42.470944+00:00",
+      "duration": 1.069244
+    },
+    {
+      "activity": {
+        "name": "configure_controller_watcher",
+        "tolerance": 200,
+        "provider": {
+          "type": "http",
+          "url": "http://localhost:8080/actuator/chaosmonkey/watchers",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "arguments": {
+            "controller": true,
+            "restController": false,
+            "service": false,
+            "repository": false,
+            "component": false
+          }
+        },
+        "type": "action"
+      },
+      "output": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "text/plain;charset=UTF-8",
+          "Content-Length": "26",
+          "Date": "Wed, 20 Aug 2025 13:44:42 GMT",
+          "Keep-Alive": "timeout=60",
+          "Connection": "keep-alive"
+        },
+        "body": "Watcher config has changed"
+      },
+      "start": "2025-08-20T13:44:42.471246+00:00",
+      "status": "succeeded",
+      "end": "2025-08-20T13:44:42.479882+00:00",
+      "duration": 0.008636
+    }
+  ],
+  "rollbacks": [
+    {
+      "activity": {
+        "name": "disable_chaosmonkey",
+        "provider": {
+          "arguments": {
+            "base_url": "http://localhost:8080/actuator"
+          },
+          "func": "disable_chaosmonkey",
+          "module": "chaosspring.actions",
+          "type": "python"
+        },
+        "type": "action"
+      },
+      "output": "{\"disabledAt\":\"2025-08-20T10:44:42.494-03:00\",\"enabledFor\":{\"raw\":\"PT1.095S\",\"formatted\":\"1 seconds\"},\"enabled\":false}",
+      "start": "2025-08-20T13:44:42.489307+00:00",
+      "status": "succeeded",
+      "end": "2025-08-20T13:44:42.498003+00:00",
+      "duration": 0.008696
+    }
+  ],
+  "end": "2025-08-20T13:44:42.498238+00:00",
+  "duration": 1.1226348876953125
+}
